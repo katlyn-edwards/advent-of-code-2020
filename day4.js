@@ -1,3 +1,4 @@
+//  [true, false, true, false, false, true]
 let input =
 `hgt:159cm
 pid:561068005 eyr:2025 iyr:2017 cid:139 ecl:blu hcl:#ceb3a1
@@ -1091,8 +1092,7 @@ function countValidPassports() {
 function countValidPassportsStrict() {
   const requiredFields = ['byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid'];
   passports = input.split('\n\n');
-  // const validCount = passports.reduce((accumulator, passportLine, index) => {
-  const validArr = passports.map((passportLine, index) => {
+  const validCount = passports.reduce((accumulator, passportLine, index) => {
      const passportArray = passportLine.split(/\s/);
      const foundAllFields = requiredFields.every((fieldName) => {
         for (let i = 0; i < passportArray.length; i++) {
@@ -1131,10 +1131,7 @@ function countValidPassportsStrict() {
         }
         return false;
      });
-     // return foundAllFields ? accumulator + 1  : accumulator;
-     return foundAllFields;
-  // }, 0);
-  });
-  // return validCount;
-  return validArr;
+     return foundAllFields ? accumulator + 1  : accumulator;
+  }, 0);
+  return validCount;
 }
