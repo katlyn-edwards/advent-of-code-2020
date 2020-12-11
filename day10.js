@@ -145,6 +145,7 @@ function part2() {
   console.log(`max: ${max}`)
 
   console.log(`starting!!`);
+  // getSuccessfulArrangement(startVoltage, max, result, [], inputArr);
   // OK so this doesn't work, the recursive stack gets too big. I have to use
   // dynamic programming. Fuck. Maybe it's the arrays?? IDK
   let result = [1];
@@ -153,6 +154,24 @@ function part2() {
   console.log(result[result.length - 1]);
 }
 
+// function getSuccessfulArrangement(voltage, max, listOfArrangements, currArrangementList, inputArr) {
+//   if (voltage >= max) {
+//     // console.log(`end of recursion: currentArrangement: ${currArrangementList}`)
+//     listOfArrangements.push(currArrangementList);
+//     return;
+//   }
+
+//   // choose, explore, unchoose?
+//   for (let i = 0; i < 3; i++) {
+//     // console.log(`looking for: ${startVoltage + i + 1}`)
+//     let found = inputArr.indexOf(voltage + i + 1);
+//     if (found != -1) {
+//       let newArrangementArr = currArrangementList.slice();
+//       newArrangementArr.push(inputArr[found]);
+//       getSuccessfulArrangement(voltage + i + 1, max, listOfArrangements, newArrangementArr, inputArr);
+//     }
+//   }
+// }
 
 function getSuccessfulArrangement2(voltage, max, inputArr, result) {
   for (let i = 1; i < inputArr.length; i++) {
