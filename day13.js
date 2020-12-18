@@ -8,26 +8,16 @@ busRoutes = inputArr[1];
 busRoutes = busRoutes.split(',')
 
 function part1() {
-  // console.log(`departTime: ${departTime}`)
-  // console.log(`busRoutesStr: ${busRoutes}`)
-  console.log(`routes Arr: ${busRoutes}`)
   busRoutes.filter(el => el != 'x')
-
-
   let nearestArr = [];
   busRoutes.forEach(route => {
     route = parseInt(route)
-    // console.log('in loop ' + route)
     let calc = route
     while (calc <= departTime) {
       calc += route;
-      // console.log(`new calc ${calc}`)
     }
-    // console.log(`route: ${route}; nearest: ${calc}`);
     nearestArr.push(calc);
   });
-
-  console.log(`nearestArrs: ${nearestArr}`);
 
   let min = nearestArr[0];
   let minIndex = 0;
@@ -38,12 +28,7 @@ function part1() {
     }
   }
 
-  console.log(`soonest: ${min}`);
-  console.log(`soonest index: ${minIndex}`);
-  console.log(`departTime: ${departTime}`)
   diff = min - departTime
-  console.log(`diff: ${diff}`)
-  console.log(busRoutes[minIndex] * diff);
 }
 
 function part2() {
@@ -65,7 +50,7 @@ function part2() {
   // t = 37h + 56;
   // t = 23i + 73;
 
-  // t = 1028248271342350 + 2029817890655789 n
+  // t = 1028248271342350 + 2029817890655789 * n
   // so I did 2029817890655789 - 1028248271342350
 
   busRoutesNoX = busRoutes.slice();
@@ -73,11 +58,10 @@ function part2() {
   busRoutesNoX = busRoutesNoX.map(el => parseInt(el))
   let arrOfTimes = busRoutesNoX.slice();
 
-  shittyLCM = busRoutesNoX.reduce((prevVal, curr) => {
+  let LCM = busRoutesNoX.reduce((prevVal, curr) => {
     return prevVal * curr;
   }, 1);
-  // 3162341
-  console.log(`shittyLCM: ${shittyLCM}`)
+  console.log(`LCM: ${LCM}`)
 
 
   let rotations = 0;
@@ -88,16 +72,12 @@ function part2() {
     let min = arrOfTimes[0];
     let minIndex = 0;
     for (let i = 1; i < arrOfTimes.length; i++) {
-      console.log("arr@index: " + arrOfTimes[i])
-      console.log("min: " + min)
       if (parseInt(arrOfTimes[i]) < min) {
         min = arrOfTimes[i];
         minIndex = i;
       }
     }
-    console.log(`min: ${min}, minIndex: ${minIndex}`)
     arrOfTimes[minIndex] = shittyLCM + busRoutesNoX[minIndex] ;
-    console.log(`incremented one busRoute: ${arrOfTimes}`);
     rotations++;
   }
 
@@ -113,30 +93,17 @@ function part2() {
 
 function allTimesAreValid(arrOfTimes, busRoutes, busRoutesNoX) {
   let t = arrOfTimes[0];
-  console.log(`t: ${t}`);
-  console.log(`busRoutes: ${busRoutes}`);
-  console.log(`busRoutesNoX: ${busRoutesNoX}`);
   for ( let i = 1; i < busRoutes.length; i++ ) {
     if (busRoutes[i] == 'x') {
        continue;
     }
     original = parseInt(busRoutes[i])
-    console.log(`original: ${original}`);
-    console.log(`busRoutesNoX: ${busRoutesNoX}`)
     arrIndex = busRoutesNoX.indexOf(original)
-    console.log(`arrindex: ${arrIndex}`)
-    console.log(`i: ${i}, arrOfTimes[arrIndex]: ${arrOfTimes[arrIndex]}`)
-    console.log(`t + i: ${t + i}`)
     if (t + i != arrOfTimes[i]) {
-      console.log('returning false!')
       return false;
     }
   }
-  console.log("*****************")
   return true;
-
 }
-
-part2();
 
 
