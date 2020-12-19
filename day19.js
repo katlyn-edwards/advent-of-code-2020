@@ -1,15 +1,50 @@
-let input = `0: 4 1 5
-1: 2 3 | 3 2
-2: 4 4 | 5 5
-3: 4 5 | 5 4
-4: "a"
-5: "b"
+let input = `42: 9 14 | 10 1
+9: 14 27 | 1 26
+10: 23 14 | 28 1
+1: "a"
+11: 42 31
+5: 1 14 | 15 1
+19: 14 1 | 14 14
+12: 24 14 | 19 1
+16: 15 1 | 14 14
+31: 14 17 | 1 13
+6: 14 14 | 1 14
+2: 1 24 | 14 4
+0: 8 11
+13: 14 3 | 1 12
+15: 1 | 14
+17: 14 2 | 1 7
+23: 25 1 | 22 14
+28: 16 1
+4: 1 1
+20: 14 14 | 1 15
+3: 5 14 | 16 1
+27: 1 6 | 14 18
+14: "b"
+21: 14 1 | 1 14
+25: 1 1 | 1 14
+22: 14 14
+8: 42
+26: 14 22 | 1 20
+18: 15 15
+7: 14 5 | 1 21
+24: 14 1
 
-ababbb
-bababa
-abbbab
-aaabbb
-aaaabbb`;
+abbbbbabbbaaaababbaabbbbabababbbabbbbbbabaaaa
+bbabbbbaabaabba
+babbbbaabbbbbabbbbbbaabaaabaaa
+aaabbbbbbaaaabaababaabababbabaaabbababababaaa
+bbbbbbbaaaabbbbaaabbabaaa
+bbbababbbbaaaaaaaabbababaaababaabab
+ababaaaaaabaaab
+ababaaaaabbbaba
+baabbaaaabbaaaababbaababb
+abbbbabbbbaaaababbbbbbaaaababb
+aaaaabbaabaaaaababaa
+aaaabbaaaabbaaa
+aaaabbaabbaaaaaaabbbabbbaaabbaabaaa
+babaaabbbaaabaababbaabababaaab
+aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba`;
 
 let inputArr = input.split(`\n\n`);
 let rules = inputArr[0];
@@ -17,35 +52,32 @@ let inputStr = inputArr[1];
 let inputToVerify = inputStr.split(`\n`);
 let rulesArr = rules.split(`\n`);
 
+let maxStringMatchLength = 0;
+inputToVerify.forEach(str => {
+  if (str.length > maxStringMatchLength) {
+    maxStringMatchLength = str.length;
+  }
+});
+
 let rulesMap = getRulesMap(rulesArr);
 console.log(rulesMap);
 
-// Try 2, let's build up a regex lmao
-let regexString = buildString(rulesMap, 0)
-console.log(regexString);
+function part1() {
+  // Try 2, let's build up a regex lmao
+  let regexString = buildRegexString(rulesMap, 0)
+  console.log(regexString);
+  let complexRegexString = '^' + regexString + '$';
+  let re = new RegExp(complexRegexString);
+  return inputToVerify.reduce((accum, inputStr) => {
+    let didMatch = inputStr.match(re);
+    if (didMatch && didMatch[0] == inputStr) {
+      return accum + 1;
+    }
+    return accum;
+  }, 0);
+}
 
-let complexRegexString = '^' + regexString + '$';
-
-let re = new RegExp(complexRegexString);
-
-inputToVerify.reduce((accum, inputStr) => {
-  // let matchResultObj = verifyMatchesRules(inputStr, rulesMap, 0, 0);
-
-  // if (!matchResultObj.valid || matchResultObj.index != inputStr.length) {
-  //   console.log(`${inputStr}`);
-  // }
-  // if (matchResultObj.valid && matchResultObj.index == inputStr.length) {
-  //   return accum + 1;
-  // }
-  // return accum;
-  let didMatch = inputStr.match(re);
-  if (didMatch && didMatch[0] == inputStr) {
-    return accum + 1;
-  }
-  return accum;
-}, 0);
-
-function buildString(rulesMap, ruleNum) {
+function buildRegexString(rulesMap, ruleNum) {
   let subRuleObj = rulesMap.get(ruleNum);
   if (subRuleObj.type == 'char') {
     // Done recursing!!
@@ -56,7 +88,7 @@ function buildString(rulesMap, ruleNum) {
     let newString = '('
     for (let i = 0; i < subRuleObj.arr.length; i++) {
       let ruleToFollow = subRuleObj.arr[i];
-      newString += buildString(rulesMap, ruleToFollow);
+      newString += buildRegexString(rulesMap, ruleToFollow);
     }
     return newString + ')';
   }
@@ -64,84 +96,82 @@ function buildString(rulesMap, ruleNum) {
   if (subRuleObj.type == 'or') {
     let newString = '(';
     // left
-    newString += buildString(rulesMap, subRuleObj.left1);
+    newString += buildRegexString(rulesMap, subRuleObj.left1);
     if (subRuleObj.left2) {
-      newString += buildString(rulesMap, subRuleObj.left2);
+      newString += buildRegexString(rulesMap, subRuleObj.left2);
     }
     newString += '|'
     // right
-    newString += buildString(rulesMap, subRuleObj.right1);
+    newString += buildRegexString(rulesMap, subRuleObj.right1);
     if (subRuleObj.right2) {
-      newString += buildString(rulesMap, subRuleObj.right2);
+      newString += buildRegexString(rulesMap, subRuleObj.right2);
     }
     newString += ')'
     return newString;
   }
 }
 
-function verifyMatchesRules(inputStr, rulesMap, ruleNum, strIndex) {
-  let printPadding = ''
-  for (let i = 0; i < strIndex; i++) {
-    printPadding += '  ';
-  }
-  console.log(`${printPadding}looking at rule #${ruleNum}`);
-  console.log(`${printPadding}str: ${inputStr.split('').splice(strIndex).join('')}`);
-  if (strIndex > inputStr.length) {
-    return true;
-  }
+function buildRegexString2(rulesMap, ruleNum) {
   let subRuleObj = rulesMap.get(ruleNum);
-  let newStrIndex;
-  switch (subRuleObj.type) {
-    case 'or':
+  if (subRuleObj.type == 'char') {
+    // Done recursing!!
+    return subRuleObj.char;
+  }
+
+  if (subRuleObj.type == 'run') {
+    let newString = '('
+    for (let i = 0; i < subRuleObj.arr.length; i++) {
+      let ruleToFollow = subRuleObj.arr[i];
+      newString += buildRegexString2(rulesMap, ruleToFollow);
+    }
+    return newString + ')';
+  }
+
+  if (subRuleObj.type == 'or') {
+    let newString = '(';
+    if (ruleNum == 8) {
+      newString += buildRegexString2(rulesMap, subRuleObj.left1);
+      newString += '+)';
+      return newString;
+    } else if ( ruleNum == 11) {
+      // fuck I hate this
+      // maybe build up all options recursing down maxStringMatchLength times?
+      let innerLeft = ''
+      let innerRight = '';
+      innerLeft = buildRegexString2(rulesMap, subRuleObj.left1);
+      innerRight = buildRegexString2(rulesMap, subRuleObj.left2);
+
+      let middle = ''
+      maxStringMatchLength = 10;
+      // Literally anything bigger breaks JS's regex parsing soooo.
+      for (let i = 1; i < maxStringMatchLength; i++) {
+        middle += '(';
+        for (let j = 0; j < i; j++) {
+          middle += innerLeft;
+        }
+        for (let j = 0; j < i; j++) {
+          middle += innerRight;
+        }
+        middle += ')|'
+      }
+      // remove trailing |
+      middle = middle.substring(0, middle.length -1);
+      return '(' + middle + ')';
+    } else {
       // left
-      let leftAResults = verifyMatchesRules(inputStr, rulesMap, subRuleObj.left1, strIndex);
-      if (leftAResults.valid) {
-        let leftB = {valid: true, index: leftAResults.index};
-        if (subRuleObj.left2) {
-          leftBResults = verifyMatchesRules(inputStr, rulesMap, subRuleObj.left2, leftAResults.index);
-        }
-        if (leftBResults.valid) {
-          return {valid: true, index: leftBResults.index};
-        }
+      newString += buildRegexString2(rulesMap, subRuleObj.left1);
+      if (subRuleObj.left2) {
+        newString += buildRegexString2(rulesMap, subRuleObj.left2);
       }
-
+      newString += '|'
       // right
-      let rightAResults = verifyMatchesRules(inputStr, rulesMap, subRuleObj.right1, strIndex);
-      if (rightAResults.valid) {
-        let rightBResults = {valid: true, index: rightAResults.index};
-        if (subRuleObj.right2) {
-          rightBResults = verifyMatchesRules(inputStr, rulesMap, subRuleObj.right2, rightAResults.index);
-        }
-        if (rightBResults.valid) {
-          return {valid: true, index: rightBResults.index};
-        }
+      newString += buildRegexString2(rulesMap, subRuleObj.right1);
+      if (subRuleObj.right2) {
+        newString += buildRegexString2(rulesMap, subRuleObj.right2);
       }
-      console.log(`${printPadding}invalid or`)
-      return {valid: false, index: strIndex};
-
-    case 'char':
-      let isValid = inputStr.charAt(strIndex) == subRuleObj.char;
-      if (!isValid) {
-        console.log(`${printPadding}invalid char`)
-      }
-      return {valid: isValid, index: isValid ? strIndex + 1 : strIndex};
-
-    case 'run':
-      let newStrIndex = strIndex;
-      for (let i = 0; i < subRuleObj.arr.length; i++) {
-        let ruleToFollow = subRuleObj.arr[i];
-        let ruleResults = verifyMatchesRules(inputStr, rulesMap, ruleToFollow, newStrIndex);
-        if (!ruleResults.valid) {
-          console.log(`${printPadding}invalid part of run: ${i}`)
-          return {valid: false, index: strIndex};
-        }
-        newStrIndex = ruleResults.index;
-      }
-      return {valid: true, index: newStrIndex};
-
-     default:
-       console.log("OH NO: " + subRuleObj.type);
-       return {valid: false, index: strIndex};
+      newString += ')'
+      return newString;
+    }
   }
 }
 
@@ -187,4 +217,20 @@ function getRulesMap(rulesArr) {
     result.set(num, subRuleObj);
   });
   return result;
+}
+
+function part2() {
+  rulesMap.set(8, {type: 'or', left1: 42, right1: 42, right2: 8});
+  rulesMap.set(11, {type: 'or', left1: 42, left2: 31, right1: 42, right2: 11, right3: 31});
+  // Try 2, let's build up a shitty ass regex lmao
+  let regexString = buildRegexString2(rulesMap, 0)
+  let complexRegexString = '^' + regexString + '$';
+  let re = new RegExp(complexRegexString);
+  return inputToVerify.reduce((accum, inputStr) => {
+    let didMatch = inputStr.match(re);
+    if (didMatch && didMatch[0] == inputStr) {
+      return accum + 1;
+    }
+    return accum;
+  }, 0);
 }
