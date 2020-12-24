@@ -45,15 +45,11 @@ ALL_DIRECTIONS  = [
   NORTH_EAST_COORD,
 ]
 
-// N -> E -> S -> W
 function part1() {
   let seenSet = new Set();
-  // seenSet.add('0,0');
   inputArr.forEach(tilePatternString => {
     let tilePattern = getPattern(tilePatternString);
-    // console.log(tilePattern);
     let coords = flipTile(tilePattern);
-    // console.log(coords);
     if (seenSet.has(coords)) {
       // Flipping from black to white;
       seenSet.delete(coords);
@@ -103,8 +99,6 @@ function flipTile(pattern) {
 }
 
 function getPattern(str) {
-  // console.log(str);
-  // greedy search for directions
   let result = [];
   for(let i = 0; i < str.length; i++) {
     if (i + 1 < str.length && str.charAt(i) == 's' && str.charAt(i + 1) == 'e') {
@@ -143,7 +137,6 @@ function getNeighbors(tile, originalFlipped) {
       whiteNeighbors.add(neighbor.join(','));
     }
   });
-  // console.log(`current tile: ${tile}`);
   return {black: blackNeighbors, white: whiteNeighbors};
 }
 
@@ -154,11 +147,8 @@ function part2() {
     let knownBlackTiles = new Set();
     for(tile of blackTiles.values()) {
       let neighbors = getNeighbors(tile, blackTiles);
-      // console.log(neighbors);
       knownWhiteTiles = new Set([...knownWhiteTiles, ...neighbors.white]);
-      if (neighbors.black.size == 0 || neighbors.black.size > 2) {
-        // knownWhiteTiles.add(tile);
-      } else {
+      if (neighbors.black.size != 0 && neighbors.black.size <= 2) {
         knownBlackTiles.add(tile);
       }
     }
@@ -168,8 +158,6 @@ function part2() {
         knownBlackTiles.add(tile);
       }
     }
-    // console.log(`day end flipped: ${knownBlackTiles.size}`)
-
     blackTiles = knownBlackTiles;
   }
   console.log(`Total flipped: ${blackTiles.size}`);
