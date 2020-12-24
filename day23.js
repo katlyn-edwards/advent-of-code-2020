@@ -3,7 +3,7 @@ let inputArr = input.split('');
 inputArr = inputArr.map(el => parseInt(el));
 
 let MOVES = 10000000;
-let MIL =   1000000;
+let MIL = 1000000;
 
 // Find biggest cup number
 let maxNum = 0;
